@@ -64,7 +64,7 @@ namespace VioletDocumentCreator
 				if (account.SmtpAddress == EmailAddress)
 				{
 					mailItem.SendUsingAccount = account;
-					mailItem.Subject = "הצעת מחיר מחנן מלין";
+					mailItem.Subject = "חנן מלין - הצעת מחיר מספר " + order.OrderId;
 					mailItem.To = order.Email;
 					mailItem.Importance = Outlook.OlImportance.olImportanceLow;
 					mailItem.Attachments.Add(order.GetPdfSavingPath(), Outlook.OlAttachmentType.olByValue, 1,order.GetPdfFileName());
