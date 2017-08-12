@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace VioletDocumentCreator
 {
@@ -16,6 +17,8 @@ namespace VioletDocumentCreator
 		public string ContactPhone2 { get; set; }
 
 		public string ContactName => ContactFirstName + " " + ContactLastName;
+
+		private readonly string _directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
 		public Order(string[] args)
 		{
@@ -42,5 +45,16 @@ namespace VioletDocumentCreator
 		}
 
 		private static string GetValueOrNull(Dictionary<string, string> data, string key) => data.ContainsKey(key) ? data[key] : null;
+
+		public string GetTamplatePath() => _directory + @"\word\" + Topic + ".docx";
+		public string GetSavingDirectory() => _directory + @"\הצעות מחיר\" + Topic;
+
+		private string GetSavingName() => OrganizationName + " " + ContactName + " " + OrderId;
+
+		public string GetPdfFileName() => GetSavingName() + ".pdf";
+		public string GetDocSavingPath() => _directory + @"\הצעות מחיר\" + Topic + @"\" + GetSavingName() + ".docx";
+		public string GetPdfSavingPath() => _directory + @"\הצעות מחיר\" + Topic + @"\" + GetPdfFileName();
+
+
 	}
 }

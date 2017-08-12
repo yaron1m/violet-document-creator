@@ -11,21 +11,23 @@ namespace VioletDocumentCreator
 {
 	public class DocumentCreator
 	{
+		private const string EmailAddress = "yaron1m@gmail.com";
+
+
 		public static void CreateDocument(string[] args)
 		{
 			var order = new Order(args);
 
-			CreateWordAndPdf(order);
-			string savePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\הצעות מחיר\" +
-				order.Topic + @"\" + order.OrganizationName + " " + order.ContactName + " " + order.OrderId + ".docx";
+			CreateWordOrder(order);
 
-			string PdfPath = savePath.Substring(0, savePath.Length - 4) + "pdf";
-			SendOutlookMail.CreateMailItem(PdfPath, order.Email);
+			ConvertDocxToPdf(order.GetDocSavingPath(), order.GetPdfSavingPath());
+
+			CreateMailItem(order);
 		}
 
-		private static void CreateWordAndPdf(Order order)
+		private static void CreateWordOrder(Order order)
 		{
-			using (var docX = DocX.Load(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\word\" + order.Topic + ".docx"))
+			using (var docX = DocX.Load(order.GetTamplatePath()))
 			{
 				docX.ReplaceText("<שם איש קשר>", order.ContactName);
 				docX.ReplaceText("<שם ארגון>", order.OrganizationName);
@@ -40,55 +42,41 @@ namespace VioletDocumentCreator
 				docX.ReplaceText("<נייד>", phoneNumbers);
 
 
-				var saveDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\הצעות מחיר\" +
-							  order.Topic;
-				if (!Directory.Exists(saveDir))
-				{
-					Directory.CreateDirectory(saveDir);
-				}
-
-				var savePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\הצעות מחיר\" + order.Topic
-					+ @"\" + order.OrganizationName + " " + order.ContactName + " " + order.OrderId + ".docx";
-
-				docX.SaveAs(savePath);
-
-				var pdfPath = savePath.Substring(0, savePath.Length - 4) + "pdf";// Path.GetPathRoot(savePath) + Path.GetFileNameWithoutExtension(savePath) + ".pdf";
-				SaveWordToPDF.Convert(savePath, pdfPath);
+				if (!Directory.Exists(order.GetSavingDirectory()))
+					Directory.CreateDirectory(order.GetSavingDirectory());
+			
+				docX.SaveAs(order.GetDocSavingPath());
 			}
 		}
-	}
-	public class SendOutlookMail
-	{
 
-		public static void CreateMailItem(string filePath, string email)
+
+		public static void CreateMailItem(Order order)
 		{
 			//יוצר מייל חדש עם הקובץ של הזמנת ההרצאה 
 			//מען המייל הוא הכתובת מהטופס
 			//ישלח מחנן סי-פויינט
 
 			var outlookApp = new Outlook.Application();
-			var mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
+			var mailItem = (Outlook.MailItem) outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
 			foreach (Outlook.Account account in outlookApp.Session.Accounts)
 			{
 				// When the e-mail address matches, send the mail.
-				if (account.SmtpAddress == "yaron1m@gmail.com")
+				if (account.SmtpAddress == EmailAddress)
 				{
 					mailItem.SendUsingAccount = account;
 					mailItem.Subject = "הצעת מחיר מחנן מלין";
-					mailItem.To = email;
+					mailItem.To = order.Email;
 					mailItem.Importance = Outlook.OlImportance.olImportanceLow;
-					mailItem.Attachments.Add(filePath, Outlook.OlAttachmentType.olByValue, 1, Path.GetFileName(filePath));
+					mailItem.Attachments.Add(order.GetPdfSavingPath(), Outlook.OlAttachmentType.olByValue, 1,order.GetPdfFileName());
 					mailItem.Display(false);
+					break;
 				}
 			}
-
 		}
-	}
-	public class SaveWordToPDF
-	{
+
 		//שומר וורד כפידיאף
 
-		public static void Convert(string input, string output)
+		public static void ConvertDocxToPdf(string input, string output)
 		{
 			// Create an instance of Word.exe
 			Word._Application oWord = new Word.Application();
