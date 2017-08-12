@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32;
 
@@ -13,53 +9,46 @@ namespace VioletDocumentCreator
 	{
 		private const string UriScheme = "violet";
 		private const string UriKey = "URL:Violet Protocol";
-		private const string AppName = "VioletDocumentCreator.exe";
 
-		public static void Install(string[] args)
+		public static void Install()
 		{
-			if ((args.Length > 0) && (args[0].Equals("/u") || args[0].Equals("-u")))
+			// install
+			var appPath = typeof(Program).Assembly.Location;
+
+			Console.Write($"Attempting to register URI scheme for:\n{appPath}");
+
+			try
 			{
-				// uninstall
-				Console.Write("Attempting to unregister URI scheme...");
+				if (!File.Exists(appPath))
+				{
+					throw new InvalidOperationException($"Application not found at: {appPath}");
+				}
 
-				try
-				{
-					UnregisterUriScheme();
-					Console.WriteLine(" Success.");
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(" Failed!");
-					Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
-				}
+				RegisterUriScheme(appPath);
+				Console.WriteLine(" Success.");
 			}
-			else
+			catch (Exception ex)
 			{
-				// install
-				var appPath = Path.Combine(Path.GetDirectoryName(typeof(Program).Assembly.Location), AppName);
-				
-				Console.Write($"Attempting to register URI scheme for {appPath}...");
-
-				try
-				{
-					if (!File.Exists(appPath))
-					{
-						throw new InvalidOperationException($"Application not found at: {appPath}");
-					}
-
-					RegisterUriScheme(appPath);
-					Console.WriteLine(" Success.");
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(" Failed!");
-					Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
-				}
+				Console.WriteLine(" Failed!");
+				Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
 			}
+		}
 
-			Console.WriteLine();
-			Console.WriteLine("Press any key to continue...");
-			Console.ReadKey();
+		public static void Uninstall()
+		{
+			// uninstall
+			Console.Write("Attempting to unregister URI scheme...");
+
+			try
+			{
+				Registry.ClassesRoot.DeleteSubKeyTree(UriScheme);
+				Console.WriteLine(" Success.");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(" Failed!");
+				Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
+			}
 		}
 
 		public static void RegisterUriScheme(string appPath)
@@ -91,12 +80,5 @@ namespace VioletDocumentCreator
 				}
 			}
 		}
-
-		static void UnregisterUriScheme()
-		{
-			Registry.ClassesRoot.DeleteSubKeyTree(UriScheme);
-		}
-
-		
 	}
 }
