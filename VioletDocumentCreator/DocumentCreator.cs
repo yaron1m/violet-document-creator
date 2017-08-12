@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Novacode;
+using Outlook = Microsoft.Office.Interop.Outlook;
+using Word = Microsoft.Office.Interop.Word;
+
 
 namespace VioletDocumentCreator
 {
@@ -72,5 +75,68 @@ namespace VioletDocumentCreator
 				SaveWordToPDF.Convert(savePath, PdfPath);
 			}
 		}
+	}
+	public class SendOutlookMail
+	{
+
+		public static void CreateMailItem(string filePath, string email)
+		{
+			//יוצר מייל חדש עם הקובץ של הזמנת ההרצאה 
+			//מען המייל הוא הכתובת מהטופס
+			//ישלח מחנן סי-פויינט
+
+			var outlookApp = new Outlook.Application();
+			var mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
+			foreach (Outlook.Account account in outlookApp.Session.Accounts)
+			{
+				// When the e-mail address matches, send the mail.
+				if (account.SmtpAddress == "hanan@c-point.co.il")
+				{
+					mailItem.SendUsingAccount = account;
+					mailItem.Subject = "הצעת מחיר מחנן מלין";
+					mailItem.To = email;
+					mailItem.Importance = Outlook.OlImportance.olImportanceLow;
+					mailItem.Attachments.Add(filePath, Outlook.OlAttachmentType.olByValue, 1, Path.GetFileName(filePath));
+					mailItem.Display(false);
+				}
+			}
+
+		}
+	}
+	public class SaveWordToPDF
+	{
+		//שומר וורד כפידיאף
+
+		public static void Convert(string input, string output)
+		{
+			// Create an instance of Word.exe
+			Word._Application oWord = new Word.Application();
+
+			// Make this instance of word invisible (Can still see it in the taskmgr).
+			oWord.Visible = false;
+
+			// Interop requires objects.
+			object oMissing = System.Reflection.Missing.Value;
+			object isVisible = true;
+			object readOnly = false;
+			object oInput = input;
+			object oOutput = output;
+			object oFormat = Word.WdSaveFormat.wdFormatPDF;
+
+			// Load a document into our instance of word.exe
+			Word._Document oDoc = oWord.Documents.Open(ref oInput, ref oMissing, ref readOnly, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref isVisible, ref oMissing, ref oMissing, ref oMissing, ref oMissing);
+
+			// Make this document the active document.
+			oDoc.Activate();
+
+			// Save this document in Word 2003 format.
+			oDoc.SaveAs(ref oOutput, ref oFormat, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing);
+
+			// Always close Word.exe.
+			object saveChanges = false;
+			oWord.Quit(ref saveChanges, ref oMissing, ref oMissing);
+		}
+
+
 	}
 }
