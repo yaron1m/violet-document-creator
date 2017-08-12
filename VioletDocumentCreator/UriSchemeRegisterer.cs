@@ -54,26 +54,26 @@ namespace VioletDocumentCreator
 		public static void RegisterUriScheme(string appPath)
 		{
 			// HKEY_CLASSES_ROOT\myscheme
-			using (RegistryKey hkcrClass = Registry.ClassesRoot.CreateSubKey(UriScheme))
+			using (var hkcrClass = Registry.ClassesRoot.CreateSubKey(UriScheme))
 			{
 				hkcrClass.SetValue(null, UriKey);
 				hkcrClass.SetValue("URL Protocol", String.Empty, RegistryValueKind.String);
 
 				// use the application's icon as the URI scheme icon
-				using (RegistryKey defaultIcon = hkcrClass.CreateSubKey("DefaultIcon"))
+				using (var defaultIcon = hkcrClass.CreateSubKey("DefaultIcon"))
 				{
-					string iconValue = String.Format("\"{0}\",0", appPath);
+					string iconValue = $"\"{appPath}\",0";
 					defaultIcon.SetValue(null, iconValue);
 				}
 
 				// open the application and pass the URI to the command-line
-				using (RegistryKey shell = hkcrClass.CreateSubKey("shell"))
+				using (var shell = hkcrClass.CreateSubKey("shell"))
 				{
-					using (RegistryKey open = shell.CreateSubKey("open"))
+					using (var open = shell.CreateSubKey("open"))
 					{
-						using (RegistryKey command = open.CreateSubKey("command"))
+						using (var command = open.CreateSubKey("command"))
 						{
-							string cmdValue = String.Format("\"{0}\" \"%1\"", appPath);
+							var cmdValue = $"\"{appPath}\" \"%1\"";
 							command.SetValue(null, cmdValue);
 						}
 					}
