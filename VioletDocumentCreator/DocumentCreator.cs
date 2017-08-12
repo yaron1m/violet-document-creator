@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Novacode;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Word = Microsoft.Office.Interop.Word;
 
-
 namespace VioletDocumentCreator
 {
 	public class DocumentCreator
 	{
 		private const string EmailAddress = "yaron1m@gmail.com";
-
 
 		public static void CreateDocument(string[] args)
 		{
@@ -44,11 +41,10 @@ namespace VioletDocumentCreator
 
 				if (!Directory.Exists(order.GetSavingDirectory()))
 					Directory.CreateDirectory(order.GetSavingDirectory());
-			
+
 				docX.SaveAs(order.GetDocSavingPath());
 			}
 		}
-
 
 		public static void CreateMailItem(Order order)
 		{
@@ -57,7 +53,7 @@ namespace VioletDocumentCreator
 			//ישלח מחנן סי-פויינט
 
 			var outlookApp = new Outlook.Application();
-			var mailItem = (Outlook.MailItem) outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
+			var mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
 			foreach (Outlook.Account account in outlookApp.Session.Accounts)
 			{
 				// When the e-mail address matches, send the mail.
@@ -67,7 +63,7 @@ namespace VioletDocumentCreator
 					mailItem.Subject = "חנן מלין - הצעת מחיר מספר " + order.OrderId;
 					mailItem.To = order.Email;
 					mailItem.Importance = Outlook.OlImportance.olImportanceLow;
-					mailItem.Attachments.Add(order.GetPdfSavingPath(), Outlook.OlAttachmentType.olByValue, 1,order.GetPdfFileName());
+					mailItem.Attachments.Add(order.GetPdfSavingPath(), Outlook.OlAttachmentType.olByValue, 1, order.GetPdfFileName());
 					mailItem.Display(false);
 					break;
 				}
