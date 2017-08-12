@@ -18,6 +18,12 @@ namespace VioletDocumentCreator
 				Console.ReadKey();
 			}
 
+			if (args[0].StartsWith("violet:"))
+			{
+				DocumentCreator.CreateDocument(args);
+				return;
+			}
+
 			switch (args[0])
 			{
 				case "install":
@@ -26,11 +32,7 @@ namespace VioletDocumentCreator
 
 				case "uninstall":
 					UriSchemeRegisterer.Uninstall();
-					break;
-
-				case "violet:":
-					DocumentCreator.CreateDocument(args);
-					return;
+					break;				
 
 				default:
 					Console.WriteLine("Invalid argument.");
