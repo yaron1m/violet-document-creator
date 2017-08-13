@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -17,40 +18,42 @@ namespace VioletDocumentCreator
 			var joinArguments = string.Join(" ", args);
 			var json = joinArguments.Substring("violet:".Length);
 
-			var order = JsonConvert.DeserializeObject<Order>(json);
+			var offer = JsonConvert.DeserializeObject<Offer>(json);
 
-			CreateWordOrder(order);
 
-			ConvertDocxToPdf(order.GetDocSavingPath(), order.GetPdfSavingPath());
+			Console.WriteLine("Creating offers:");
+			for (var topicIndex = 0; topicIndex < offer.Topic.Length; topicIndex++)
+			{
+				Console.WriteLine("Creating offer - " + offer.Topic[topicIndex]);
+				CreateWordOrder(offer, topicIndex);
 
-			CreateMailItem(order);
+				Console.WriteLine("Converting to PDF - " + offer.Topic[topicIndex]);
+				ConvertDocxToPdf(offer.GetDocSavingPath(topicIndex), offer.GetPdfSavingPath(topicIndex));
+			}
+
+			Console.WriteLine("Creating email");
+			CreateMailItem(offer);
+				
 		}
 
-		private static void CreateWordOrder(Order order)
+		private static void CreateWordOrder(Offer offer, int topicIndex)
 		{
-			using (var docX = DocX.Load(order.GetTamplatePath()))
+			using (var docX = DocX.Load(offer.GetTamplatePath(topicIndex)))
 			{
-				docX.ReplaceText("<שם איש קשר>", order.ContactName);
-				docX.ReplaceText("<שם ארגון>", order.organizationName);
-				docX.ReplaceText("<סימוכין>", order.id);
-				docX.ReplaceText("<תאריך>", order.orderCreationDate.ToString("dddd dd בMMMM yyyy"));
+				docX.ReplaceText("<שם איש קשר>", offer.ContactName);
+				docX.ReplaceText("<שם ארגון>", offer.OrganizationName);
+				docX.ReplaceText("<סימוכין>", offer.Id);
+				docX.ReplaceText("<תאריך>", offer.OrderCreationDate.ToString("dd בMMMM yyyy"));
+				docX.ReplaceText("<נייד>", offer.PhoneNumbers);
 
+				if (!Directory.Exists(offer.GetSavingDirectory(topicIndex)))
+					Directory.CreateDirectory(offer.GetSavingDirectory(topicIndex));
 
-				var phones = new List<string>() { order.contactPhone1, order.contactPhone2 };
-				var phoneNumbersList = phones.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-				var phoneNumbers = string.Join(", ", phoneNumbersList);
-
-				docX.ReplaceText("<נייד>", phoneNumbers);
-
-
-				if (!Directory.Exists(order.GetSavingDirectory()))
-					Directory.CreateDirectory(order.GetSavingDirectory());
-
-				docX.SaveAs(order.GetDocSavingPath());
+				docX.SaveAs(offer.GetDocSavingPath(topicIndex));
 			}
 		}
 
-		public static void CreateMailItem(Order order)
+		public static void CreateMailItem(Offer offer)
 		{
 			//יוצר מייל חדש עם הקובץ של הזמנת ההרצאה 
 			//מען המייל הוא הכתובת מהטופס
@@ -64,11 +67,16 @@ namespace VioletDocumentCreator
 				if (account.SmtpAddress == EmailAddress)
 				{
 					mailItem.SendUsingAccount = account;
-					mailItem.Subject = "חנן מלין - הצעת מחיר מספר " + order.id;
-					mailItem.To = order.email;
+					mailItem.Subject = "חנן מלין - הצעת מחיר מספר " + offer.Id;
+					mailItem.To = offer.Email;
 					mailItem.Importance = Outlook.OlImportance.olImportanceLow;
-					mailItem.Attachments.Add(order.GetPdfSavingPath(), Outlook.OlAttachmentType.olByValue, 1, order.GetPdfFileName());
 					mailItem.Display(false);
+
+					for (var topicIndex = 0; topicIndex < offer.Topic.Length; topicIndex++)
+					{
+						mailItem.Attachments.Add(offer.GetPdfSavingPath(topicIndex),
+							Outlook.OlAttachmentType.olByValue, 1, offer.GetPdfFileName(topicIndex));
+					}
 					break;
 				}
 			}

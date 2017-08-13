@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DocumentCreator.cs" />
-    <Compile Include="Order.cs" />
+    <Compile Include="Offer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UriSchemeRegisterer.cs" />
