@@ -6,54 +6,54 @@ namespace VioletDocumentCreator
 {
 	public class Order
 	{
-		public string Topic { get; set; }
-		public string Email { get; set; }
-		public string OrganizationName { get; set; }
-		public string ContactFirstName { get; set; }
-		public string ContactLastName { get; set; }
-		public string OrderId { get; set; }
-		public DateTime OrderCreationDate { get; set; }
-		public string ContactPhone1 { get; set; }
-		public string ContactPhone2 { get; set; }
+		public string topic { get; set; }
+		public string email { get; set; }
+		public string organizationName { get; set; }
+		public string contactFirstName { get; set; }
+		public string contactLastName { get; set; }
+		public string id { get; set; }
+		public DateTime orderCreationDate { get; set; }
+		public string contactPhone1 { get; set; }
+		public string contactPhone2 { get; set; }
 
-		public string ContactName => ContactFirstName + " " + ContactLastName;
+		public string ContactName => contactFirstName + " " + contactLastName;
 
 		private readonly string _directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-		public Order(string[] args)
-		{
-			var joinArguments = string.Join(" ", args);
-			var rawData = joinArguments.Substring("violet:".Length);
-
-			var data = new Dictionary<string, string>();
-
-			foreach (var item in rawData.Split('&'))
-			{
-				var keyValue = item.Split('=');
-				data[keyValue[0]] = keyValue[1];
-			}
-
-			Topic = GetValueOrNull(data, "topic");
-			Email = GetValueOrNull(data, "email");
-			OrganizationName = GetValueOrNull(data, "organizationName");
-			ContactFirstName = GetValueOrNull(data, "contactFirstName");
-			ContactLastName = GetValueOrNull(data, "contactLastName");
-			OrderId = GetValueOrNull(data, "orderId");
-			OrderCreationDate = GetValueOrNull(data, "orderCreationDate") == null ? new DateTime() : DateTime.Parse(GetValueOrNull(data, "orderCreationDate"));
-			ContactPhone1 = GetValueOrNull(data, "contactPhone1");
-			ContactPhone2 = GetValueOrNull(data, "contactPhone2");
-		}
+//		public Order(string[] args)
+//		{
+//			var joinArguments = string.Join(" ", args);
+//			var rawData = joinArguments.Substring("violet:".Length);
+//
+//			var data = new Dictionary<string, string>();
+//
+//			foreach (var item in rawData.Split('&'))
+//			{
+//				var keyValue = item.Split('=');
+//				data[keyValue[0]] = keyValue[1];
+//			}
+//
+//			topic = GetValueOrNull(data, "topic");
+//			email = GetValueOrNull(data, "email");
+//			organizationName = GetValueOrNull(data, "organizationName");
+//			contactFirstName = GetValueOrNull(data, "contactFirstName");
+//			contactLastName = GetValueOrNull(data, "contactLastName");
+//			id = GetValueOrNull(data, "orderId");
+//			orderCreationDate = GetValueOrNull(data, "orderCreationDate") == null ? new DateTime() : DateTime.Parse(GetValueOrNull(data, "orderCreationDate"));
+//			contactPhone1 = GetValueOrNull(data, "contactPhone1");
+//			contactPhone2 = GetValueOrNull(data, "contactPhone2");
+//		}
 
 		private static string GetValueOrNull(Dictionary<string, string> data, string key) => data.ContainsKey(key) ? data[key] : null;
 
-		public string GetTamplatePath() => _directory + @"\word\" + Topic + ".docx";
-		public string GetSavingDirectory() => _directory + @"\הצעות מחיר\" + Topic;
+		public string GetTamplatePath() => _directory + @"\word\" + topic + ".docx";
+		public string GetSavingDirectory() => _directory + @"\הצעות מחיר\" + topic;
 
-		private string GetSavingName() => OrganizationName + " " + ContactName + " " + OrderId;
+		private string GetSavingName() => organizationName + " " + ContactName + " " + id;
 
 		public string GetPdfFileName() => GetSavingName() + ".pdf";
-		public string GetDocSavingPath() => _directory + @"\הצעות מחיר\" + Topic + @"\" + GetSavingName() + ".docx";
-		public string GetPdfSavingPath() => _directory + @"\הצעות מחיר\" + Topic + @"\" + GetPdfFileName();
+		public string GetDocSavingPath() => _directory + @"\הצעות מחיר\" + topic + @"\" + GetSavingName() + ".docx";
+		public string GetPdfSavingPath() => _directory + @"\הצעות מחיר\" + topic + @"\" + GetPdfFileName();
 
 
 	}

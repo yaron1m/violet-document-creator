@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using Novacode;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Word = Microsoft.Office.Interop.Word;
@@ -13,7 +14,10 @@ namespace VioletDocumentCreator
 
 		public static void CreateDocument(string[] args)
 		{
-			var order = new Order(args);
+			var joinArguments = string.Join(" ", args);
+			var json = joinArguments.Substring("violet:".Length);
+
+			var order = JsonConvert.DeserializeObject<Order>(json);
 
 			CreateWordOrder(order);
 
@@ -27,12 +31,12 @@ namespace VioletDocumentCreator
 			using (var docX = DocX.Load(order.GetTamplatePath()))
 			{
 				docX.ReplaceText("<שם איש קשר>", order.ContactName);
-				docX.ReplaceText("<שם ארגון>", order.OrganizationName);
-				docX.ReplaceText("<סימוכין>", order.OrderId);
-				docX.ReplaceText("<תאריך>", order.OrderCreationDate.ToString("dddd dd בMMMM yyyy"));
+				docX.ReplaceText("<שם ארגון>", order.organizationName);
+				docX.ReplaceText("<סימוכין>", order.id);
+				docX.ReplaceText("<תאריך>", order.orderCreationDate.ToString("dddd dd בMMMM yyyy"));
 
 
-				var phones = new List<string>() { order.ContactPhone1, order.ContactPhone2 };
+				var phones = new List<string>() { order.contactPhone1, order.contactPhone2 };
 				var phoneNumbersList = phones.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 				var phoneNumbers = string.Join(", ", phoneNumbersList);
 
@@ -60,8 +64,8 @@ namespace VioletDocumentCreator
 				if (account.SmtpAddress == EmailAddress)
 				{
 					mailItem.SendUsingAccount = account;
-					mailItem.Subject = "חנן מלין - הצעת מחיר מספר " + order.OrderId;
-					mailItem.To = order.Email;
+					mailItem.Subject = "חנן מלין - הצעת מחיר מספר " + order.id;
+					mailItem.To = order.email;
 					mailItem.Importance = Outlook.OlImportance.olImportanceLow;
 					mailItem.Attachments.Add(order.GetPdfSavingPath(), Outlook.OlAttachmentType.olByValue, 1, order.GetPdfFileName());
 					mailItem.Display(false);
