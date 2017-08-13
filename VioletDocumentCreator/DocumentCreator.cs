@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using Novacode;
 using Outlook = Microsoft.Office.Interop.Outlook;
@@ -33,7 +31,7 @@ namespace VioletDocumentCreator
 
 			Console.WriteLine("Creating email");
 			CreateMailItem(offer);
-				
+
 		}
 
 		private static void CreateWordOrder(Offer offer, int topicIndex)
@@ -55,15 +53,12 @@ namespace VioletDocumentCreator
 
 		public static void CreateMailItem(Offer offer)
 		{
-			//יוצר מייל חדש עם הקובץ של הזמנת ההרצאה 
-			//מען המייל הוא הכתובת מהטופס
-			//ישלח מחנן סי-פויינט
-
 			var outlookApp = new Outlook.Application();
 			var mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
+
 			foreach (Outlook.Account account in outlookApp.Session.Accounts)
 			{
-				// When the e-mail address matches, send the mail.
+				// When the e-mail address matches, send an email.
 				if (account.SmtpAddress == EmailAddress)
 				{
 					mailItem.SendUsingAccount = account;
@@ -81,8 +76,6 @@ namespace VioletDocumentCreator
 				}
 			}
 		}
-
-		//שומר וורד כפידיאף
 
 		public static void ConvertDocxToPdf(string input, string output)
 		{
@@ -113,7 +106,5 @@ namespace VioletDocumentCreator
 			object saveChanges = false;
 			oWord.Quit(ref saveChanges, ref oMissing, ref oMissing);
 		}
-
-
 	}
 }
