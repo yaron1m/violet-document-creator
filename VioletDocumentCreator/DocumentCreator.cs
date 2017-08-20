@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Newtonsoft.Json;
 using Novacode;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Word = Microsoft.Office.Interop.Word;
@@ -13,10 +12,7 @@ namespace VioletDocumentCreator
 
 		public static void CreateDocument(string[] args)
 		{
-			var joinArguments = string.Join(" ", args);
-			var json = joinArguments.Substring("violet:".Length);
-
-			var offer = JsonConvert.DeserializeObject<Offer>(json);
+			var offer = new Offer(args);
 
 
 			Console.WriteLine("Creating offers:");

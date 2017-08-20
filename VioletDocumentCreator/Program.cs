@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace VioletDocumentCreator
@@ -10,6 +12,8 @@ namespace VioletDocumentCreator
 	{
 		public static void Main(string[] args)
 		{
+			Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+
 			if (args.Length == 0)
 			{
 				Console.WriteLine("Missing arguments.");
