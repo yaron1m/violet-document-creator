@@ -8,7 +8,7 @@ namespace VioletDocumentCreator
 {
 	public class DocumentCreator
 	{
-		private const string EmailAddress = "yaron1m@gmail.com";
+		private const string EmailAddress = "hanan@c-point.co.il";
 
 		public static void CreateDocument(string[] args)
 		{
