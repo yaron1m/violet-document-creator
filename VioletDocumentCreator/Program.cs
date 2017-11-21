@@ -22,7 +22,7 @@ namespace VioletDocumentCreator
 				Console.ReadKey();
 			}
 
-			if (args[0].StartsWith("violet:"))
+			if (args[0].StartsWith(Consts.VioletSchemePrefix))
 			{
 				DocumentCreator.CreateDocument(args);
 				return;

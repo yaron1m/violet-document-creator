@@ -21,19 +21,11 @@ namespace VioletDocumentCreator
 		public string ContactPhone1 { get; set; }
 		public string ContactPhone2 { get; set; }
 
-		public Offer(string[] args)
+		public Offer(string offerData)
 		{
-			var joinArguments = string.Join(" ", args);
-			joinArguments = HttpUtility.UrlDecode(joinArguments);
-			var rawData = joinArguments.Substring("violet:".Length);
-
-			var data = new Dictionary<string, string>();
-
-			foreach (var item in rawData.Split('&'))
-			{
-				var keyValue = item.Split('=');
-				data[keyValue[0]] = keyValue[1];
-			}
+			var data = offerData.Split('&')
+				.Select(x => x.Split('='))
+				.ToDictionary(x => x[0], x => x[1]);
 
 			Id = GetValueOrNull(data, "id");
 			Email = GetValueOrNull(data, "email");
@@ -45,13 +37,12 @@ namespace VioletDocumentCreator
 			ContactPhone2 = GetValueOrNull(data, "contactPhone2");
 
 			Topic = data.ContainsKey("topic") ? data["topic"].Split('#') : null;
-
-
 		}
+
 		private static string GetValueOrNull(Dictionary<string, string> data, string key) => data.ContainsKey(key) ? data[key] : null;
 
-
-		public string PhoneNumbers => string.Join(", ", new List<string>() { ContactPhone1, ContactPhone2 }.Where(x => !string.IsNullOrWhiteSpace(x)));
+		public string PhoneNumbers => string.Join(", ",
+			new List<string>() { ContactPhone1, ContactPhone2 }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
 		public string ContactName => ContactFirstName + " " + ContactLastName;
 

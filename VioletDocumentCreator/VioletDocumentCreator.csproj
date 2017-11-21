@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Consts.cs" />
     <Compile Include="DocumentCreator.cs" />
     <Compile Include="Offer.cs" />
     <Compile Include="Program.cs" />

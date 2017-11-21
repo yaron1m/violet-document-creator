@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Web;
 using Novacode;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using Word = Microsoft.Office.Interop.Word;
@@ -12,14 +14,16 @@ namespace VioletDocumentCreator
 
 		public static void CreateDocument(string[] args)
 		{
-			var offer = new Offer(args);
+			var openWordForEdit = args[0].StartsWith(Consts.FileOpenSchemePrefix);
 
+			var offerData = ExtractOfferData(args, openWordForEdit);
+			var offer = new Offer(offerData);
 
 			Console.WriteLine("Creating offers:");
 			for (var topicIndex = 0; topicIndex < offer.Topic.Length; topicIndex++)
 			{
 				Console.WriteLine("Creating offer - " + offer.Topic[topicIndex]);
-				CreateWordOrder(offer, topicIndex);
+				CreateWordOrder(offer, topicIndex, openWordForEdit);
 
 				Console.WriteLine("Converting to PDF - " + offer.Topic[topicIndex]);
 				ConvertDocxToPdf(offer.GetDocSavingPath(topicIndex), offer.GetPdfSavingPath(topicIndex));
@@ -27,10 +31,19 @@ namespace VioletDocumentCreator
 
 			Console.WriteLine("Creating email");
 			CreateMailItem(offer);
-
 		}
 
-		private static void CreateWordOrder(Offer offer, int topicIndex)
+		private static string ExtractOfferData(string[] args, bool openWordForEdit)
+		{
+			var joinArguments = string.Join(" ", args);
+			joinArguments = HttpUtility.UrlDecode(joinArguments);
+			var rawData = joinArguments.Substring(openWordForEdit
+				? Consts.FileOpenSchemePrefix.Length
+				: Consts.VioletSchemePrefix.Length);
+			return rawData;
+		}
+
+		private static void CreateWordOrder(Offer offer, int topicIndex, bool openWordForEdit)
 		{
 			using (var docX = DocX.Load(offer.GetTamplatePath(topicIndex)))
 			{
@@ -44,6 +57,12 @@ namespace VioletDocumentCreator
 					Directory.CreateDirectory(offer.GetSavingDirectory(topicIndex));
 
 				docX.SaveAs(offer.GetDocSavingPath(topicIndex));
+
+				if (openWordForEdit)
+				{
+					var process = Process.Start(offer.GetDocSavingPath(topicIndex));
+					process.WaitForExit();
+				}
 			}
 		}
 
