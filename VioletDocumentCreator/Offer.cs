@@ -32,29 +32,62 @@ namespace VioletDocumentCreator
 			OrganizationName = GetValueOrNull(data, "organizationName");
 			ContactFirstName = GetValueOrNull(data, "contactFirstName");
 			ContactLastName = GetValueOrNull(data, "contactLastName");
-			OrderCreationDate = GetValueOrNull(data, "orderCreationDate") == null ? new DateTime() : DateTime.Parse(data["orderCreationDate"]);
+			OrderCreationDate = GetValueOrNull(data, "orderCreationDate") == null
+				? new DateTime()
+				: DateTime.Parse(data["orderCreationDate"]);
 			ContactPhone1 = GetValueOrNull(data, "contactPhone1");
 			ContactPhone2 = GetValueOrNull(data, "contactPhone2");
 
 			Topic = data.ContainsKey("topic") ? data["topic"].Split('#') : null;
 		}
 
-		private static string GetValueOrNull(Dictionary<string, string> data, string key) => data.ContainsKey(key) ? data[key] : null;
+		private static string GetValueOrNull(Dictionary<string, string> data, string key) => data.ContainsKey(key)
+			? data[key]
+			: null;
 
 		public string PhoneNumbers => string.Join(", ",
-			new List<string>() { ContactPhone1, ContactPhone2 }.Where(x => !string.IsNullOrWhiteSpace(x)));
+			new List<string>() {ContactPhone1, ContactPhone2}.Where(x => !string.IsNullOrWhiteSpace(x)));
 
 		public string ContactName => ContactFirstName + " " + ContactLastName;
 
-		private readonly string _directory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+		private readonly string _directory =
+			Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
 		public string GetTamplatePath(int topicIndex) => _directory + @"\word\" + Topic[topicIndex] + Docx;
 		public string GetSavingDirectory(int topicIndex) => _directory + @"\הצעות מחיר\" + Topic[topicIndex];
 
-		private string GetSavingName(int topicIndex) => Topic[topicIndex] + " - " + OrganizationName + " - " + ContactName + " " + Id;
+		private string GetSavingName(int topicIndex) => Topic[topicIndex] + " - " + OrganizationName + " - " + ContactName +
+		                                                " " + Id;
 
 		public string GetPdfFileName(int topicIndex) => GetSavingName(topicIndex) + Pdf;
-		public string GetDocSavingPath(int topicIndex) => _directory + @"\הצעות מחיר\" + Topic[topicIndex] + @"\" + GetSavingName(topicIndex) + Docx;
-		public string GetPdfSavingPath(int topicIndex) => _directory + @"\הצעות מחיר\" + Topic[topicIndex] + @"\" + GetPdfFileName(topicIndex);
+
+		public string GetDocSavingPath(int topicIndex)
+		{
+			return _directory
+			       + @"\הצעות מחיר\"
+			       + RemoveInvalid(Topic[topicIndex]) + @"\"
+			       + RemoveInvalid(GetSavingName(topicIndex))
+			       + Docx;
+		}
+
+		public string GetPdfSavingPath(int topicIndex)
+		{
+			return _directory
+			       + @"\הצעות מחיר\"
+			       + RemoveInvalid(Topic[topicIndex]) + @"\" +
+			       RemoveInvalid(GetPdfFileName(topicIndex));
+		}
+
+		private string RemoveInvalid(string str)
+		{
+			string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+
+			foreach (char c in invalid)
+			{
+				str = str.Replace(c.ToString(), "");
+			}
+
+			return str;
+		}
 	}
 }
