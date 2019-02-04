@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Web;
 
 namespace VioletDocumentCreator
 {
@@ -78,7 +77,7 @@ namespace VioletDocumentCreator
 			       RemoveInvalid(GetPdfFileName(topicIndex));
 		}
 
-		private string RemoveInvalid(string str)
+		private static string RemoveInvalid(string str)
 		{
 			string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
 

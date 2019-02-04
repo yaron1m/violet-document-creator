@@ -92,7 +92,7 @@ namespace VioletDocumentCreator
 						mailItem.Attachments.Add(offer.GetPdfSavingPath(topicIndex),
 							Outlook.OlAttachmentType.olByValue, 1, offer.GetPdfFileName(topicIndex));
 					}
-					break;
+					return;
 				}
 			}
 		}
