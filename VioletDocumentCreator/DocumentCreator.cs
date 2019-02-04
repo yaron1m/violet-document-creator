@@ -8,11 +8,16 @@ using Word = Microsoft.Office.Interop.Word;
 
 namespace VioletDocumentCreator
 {
-	public class DocumentCreator
+	public interface IDocumentCreator
+	{
+		void CreateDocument(string[] args);
+	}
+
+	public class DocumentCreator: IDocumentCreator
 	{
 		private const string EmailAddress = "hanan@c-point.co.il";
 
-		public static void CreateDocument(string[] args)
+		public void CreateDocument(string[] args)
 		{
 			var openWordForEdit = args[0].StartsWith(Consts.FileOpenSchemePrefix);
 
@@ -33,7 +38,7 @@ namespace VioletDocumentCreator
 			CreateMailItem(offer);
 		}
 
-		private static string ExtractOfferData(string[] args, bool openWordForEdit)
+		private string ExtractOfferData(string[] args, bool openWordForEdit)
 		{
 			var joinArguments = string.Join(" ", args);
 			joinArguments = HttpUtility.UrlDecode(joinArguments);
@@ -43,7 +48,7 @@ namespace VioletDocumentCreator
 			return rawData;
 		}
 
-		private static void CreateWordOrder(Offer offer, int topicIndex, bool openWordForEdit)
+		private void CreateWordOrder(Offer offer, int topicIndex, bool openWordForEdit)
 		{
 			using (var docX = DocX.Load(offer.GetTamplatePath(topicIndex)))
 			{
@@ -66,7 +71,7 @@ namespace VioletDocumentCreator
 			}
 		}
 
-		public static void CreateMailItem(Offer offer)
+		public void CreateMailItem(Offer offer)
 		{
 			var outlookApp = new Outlook.Application();
 			var mailItem = (Outlook.MailItem)outlookApp.CreateItem(Outlook.OlItemType.olMailItem);
@@ -92,7 +97,7 @@ namespace VioletDocumentCreator
 			}
 		}
 
-		public static void ConvertDocxToPdf(string input, string output)
+		public void ConvertDocxToPdf(string input, string output)
 		{
 			// Create an instance of Word.exe
 			Word._Application oWord = new Word.Application();

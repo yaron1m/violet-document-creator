@@ -5,12 +5,18 @@ using Microsoft.Win32;
 // Credit - https://www.brad-smith.info/blog/archives/842
 namespace VioletDocumentCreator
 {
-	public class UriSchemeRegisterer
+	public interface IUriSchemeRegisterer
+	{
+		void Install();
+		void Uninstall();
+	}
+
+	public class UriSchemeRegisterer : IUriSchemeRegisterer
 	{
 		private const string UriScheme = "violet";
 		private const string UriKey = "URL:Violet Protocol";
 
-		public static void Install()
+		public void Install()
 		{
 			// install
 			var appPath = typeof(Program).Assembly.Location;
@@ -34,7 +40,7 @@ namespace VioletDocumentCreator
 			}
 		}
 
-		public static void Uninstall()
+		public void Uninstall()
 		{
 			// uninstall
 			Console.Write("Attempting to unregister URI scheme...");
