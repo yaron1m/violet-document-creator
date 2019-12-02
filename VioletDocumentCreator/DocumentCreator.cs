@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Web;
@@ -30,11 +30,22 @@ namespace VioletDocumentCreator
 				Console.WriteLine("Creating offer - " + offer.Topic[topicIndex]);
 				CreateWordOrder(offer, topicIndex, openWordForEdit);
 
-				Console.WriteLine("Converting to PDF - " + offer.Topic[topicIndex]);
-				ConvertDocxToPdf(offer.GetDocSavingPath(topicIndex), offer.GetPdfSavingPath(topicIndex));
-			}
+                Console.WriteLine("Converting to PDF - " + offer.Topic[topicIndex]);
+				ConvertDocxToPdf(offer.GetDocSavingPathTemp(topicIndex), offer.GetPdfSavingPathTemp(topicIndex));
 
-			Console.WriteLine("Creating email");
+                Console.WriteLine("Copying word file - " + offer.Topic[topicIndex]);
+                File.Copy(offer.GetDocSavingPathTemp(topicIndex), offer.GetDocSavingPath(topicIndex), true);
+
+                Console.WriteLine("Copying PDF file - " + offer.Topic[topicIndex]);
+                File.Copy(offer.GetPdfSavingPathTemp(topicIndex), offer.GetPdfSavingPath(topicIndex), true);
+
+                Console.WriteLine("Cleanup of file - " + offer.Topic[topicIndex]);
+                File.Delete(offer.GetDocSavingPathTemp(topicIndex));
+                File.Delete(offer.GetPdfSavingPathTemp(topicIndex));
+
+            }
+
+            Console.WriteLine("Creating email");
 			CreateMailItem(offer);
 		}
 
@@ -58,14 +69,14 @@ namespace VioletDocumentCreator
 				docX.ReplaceText("<תאריך>", offer.OrderCreationDate.ToString("dd בMMMM yyyy"));
 				docX.ReplaceText("<נייד>", offer.PhoneNumbers);
 
-				if (!Directory.Exists(offer.GetSavingDirectory(topicIndex)))
-					Directory.CreateDirectory(offer.GetSavingDirectory(topicIndex));
+				if (!Directory.Exists(offer.GetSavingDirectoryTemp()))
+					Directory.CreateDirectory(offer.GetSavingDirectoryTemp());
 
-				docX.SaveAs(offer.GetDocSavingPath(topicIndex));
+				docX.SaveAs(offer.GetDocSavingPathTemp(topicIndex));
 
 				if (openWordForEdit)
 				{
-					var process = Process.Start(offer.GetDocSavingPath(topicIndex));
+					var process = Process.Start(offer.GetDocSavingPathTemp(topicIndex));
 					process.WaitForExit();
 				}
 			}
@@ -116,15 +127,15 @@ namespace VioletDocumentCreator
 			// Load a document into our instance of word.exe
 			Word._Document oDoc = oWord.Documents.Open(ref oInput, ref oMissing, ref readOnly, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref isVisible, ref oMissing, ref oMissing, ref oMissing, ref oMissing);
 
-			// Make this document the active document.
-			oDoc.Activate();
+            // Make this document the active document.
+            oDoc.Activate();
 
-			// Save this document in Word 2003 format.
-			oDoc.SaveAs(ref oOutput, ref oFormat, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing);
+            // Save this document in Word 2003 format.
+            oDoc.SaveAs(ref oOutput, ref oFormat, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing);
 
-			// Always close Word.exe.
-			object saveChanges = false;
+            // Always close Word.exe.
+            object saveChanges = false;
 			oWord.Quit(ref saveChanges, ref oMissing, ref oMissing);
-		}
-	}
+        }
+    }
 }
