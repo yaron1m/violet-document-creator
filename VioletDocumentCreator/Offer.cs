@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -52,10 +52,14 @@ namespace VioletDocumentCreator
 		private readonly string _directory =
 			Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-		public string GetTamplatePath(int topicIndex) => _directory + @"\word\" + Topic[topicIndex] + Docx;
-		public string GetSavingDirectory(int topicIndex) => _directory + @"\הצעות מחיר\" + Topic[topicIndex];
 
-		private string GetSavingName(int topicIndex) => Topic[topicIndex] + " - " + OrganizationName + " - " + ContactName +
+        private readonly string _tempDirectory = @"C:\violet\";
+
+        public string GetTamplatePath(int topicIndex) => _directory + @"\word\" + Topic[topicIndex] + Docx;
+		public string GetSavingDirectory(int topicIndex) => _directory + @"\הצעות מחיר\" + Topic[topicIndex];
+        public string GetSavingDirectoryTemp() => _tempDirectory;
+
+        private string GetSavingName(int topicIndex) => Topic[topicIndex] + " - " + OrganizationName + " - " + ContactName +
 		                                                " " + Id;
 
 		public string GetPdfFileName(int topicIndex) => GetSavingName(topicIndex) + Pdf;
@@ -77,7 +81,20 @@ namespace VioletDocumentCreator
 			       RemoveInvalid(GetPdfFileName(topicIndex));
 		}
 
-		private static string RemoveInvalid(string str)
+        public string GetDocSavingPathTemp(int topicIndex)
+        {
+            return _tempDirectory
+                   + RemoveInvalid(GetSavingName(topicIndex))
+                   + Docx;
+        }
+
+        public string GetPdfSavingPathTemp(int topicIndex)
+        {
+            return _tempDirectory
+                  + RemoveInvalid(GetPdfFileName(topicIndex));
+        }
+
+        private static string RemoveInvalid(string str)
 		{
 			string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
 
