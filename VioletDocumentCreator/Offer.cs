@@ -64,11 +64,16 @@ namespace VioletDocumentCreator
 
 		public string GetPdfFileName(int topicIndex) => GetSavingName(topicIndex) + Pdf;
 
+        public string GetDocSavingDirectory(int topicIndex)
+        {
+            return _directory
+			       + @"\הצעות מחיר\"
+			       + RemoveInvalid(Topic[topicIndex]);
+        }
+
 		public string GetDocSavingPath(int topicIndex)
 		{
-			return _directory
-			       + @"\הצעות מחיר\"
-			       + RemoveInvalid(Topic[topicIndex]) + @"\"
+			return GetDocSavingDirectory(topicIndex) + @"\"
 			       + RemoveInvalid(GetSavingName(topicIndex))
 			       + Docx;
 		}

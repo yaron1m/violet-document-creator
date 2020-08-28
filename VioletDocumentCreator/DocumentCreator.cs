@@ -34,6 +34,13 @@ namespace VioletDocumentCreator
 				ConvertDocxToPdf(offer.GetDocSavingPathTemp(topicIndex), offer.GetPdfSavingPathTemp(topicIndex));
 
                 Console.WriteLine("Copying word file - " + offer.Topic[topicIndex]);
+                Console.WriteLine("Trying to copy");
+                Console.WriteLine(offer.GetDocSavingPathTemp(topicIndex));
+                Console.WriteLine("to");
+                Console.WriteLine(offer.GetDocSavingPath(topicIndex));
+
+                CreateTargetFolderIfNeeded(offer, topicIndex);
+
                 File.Copy(offer.GetDocSavingPathTemp(topicIndex), offer.GetDocSavingPath(topicIndex), true);
 
                 Console.WriteLine("Copying PDF file - " + offer.Topic[topicIndex]);
@@ -49,7 +56,18 @@ namespace VioletDocumentCreator
 			CreateMailItem(offer);
 		}
 
-		private string ExtractOfferData(string[] args, bool openWordForEdit)
+        private void CreateTargetFolderIfNeeded(Offer offer, int topicIndex)
+        {
+            string targetFolderPath = offer.GetDocSavingDirectory(topicIndex);
+            if (!Directory.Exists(targetFolderPath))
+            {
+                Console.WriteLine("Missing target folder - creating path: \n" + targetFolderPath);
+                Directory.CreateDirectory(targetFolderPath);
+                Console.WriteLine("Created path succesfully");
+            }
+        }
+
+        private string ExtractOfferData(string[] args, bool openWordForEdit)
 		{
 			var joinArguments = string.Join(" ", args);
 			joinArguments = HttpUtility.UrlDecode(joinArguments);
